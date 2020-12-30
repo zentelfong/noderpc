@@ -55,7 +55,7 @@ function nsPayload(buf:Buffer,encoding?:BufferEncoding):[number,Buffer]{
   if (typeof buf === 'string') {
     buf = Buffer.from(buf, encoding);
   }
-
+  
   var len = nsPayloadLength(buf);
   if (len < 0) {
     return [len,null];
@@ -144,22 +144,3 @@ export class WriteStream extends Duplex{
 }
 
 
-function test(){
-  let readeStream = new ReadStream();
-  readeStream.on('data',(data)=>{
-    console.info(`data ${data}`);
-  })
-  
-  readeStream.write("12:hello ");
-  readeStream.write("world!,12:hello world!,");
-  
-  
-  let writeStream = new WriteStream();
-  writeStream.pipe(process.stdout)
-  writeStream.write("hello")
-  writeStream.write("world43214")
-}
-
-//test();
-
-// ts-node src/rpc/netstring.ts

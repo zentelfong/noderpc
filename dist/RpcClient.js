@@ -44,7 +44,7 @@ var RpcClient = /** @class */ (function (_super) {
             if (!_this._closed) {
                 _this._connect(_this._onConnect.bind(_this), _this._onError.bind(_this));
             }
-        }, 5000);
+        }, this._option.reconnectDelay || 3000);
     };
     RpcClient.prototype.connect = function () {
         this._connect(this._onConnect.bind(this), this._onError.bind(this));
@@ -81,7 +81,6 @@ var RpcClient = /** @class */ (function (_super) {
         this._closed = false;
     };
     RpcClient.prototype.close = function () {
-        //发送数据给服务器进行关闭
         if (!this._closed) {
             this._closed = true;
             this._rpc.close();

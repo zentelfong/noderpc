@@ -141,18 +141,4 @@ var WriteStream = /** @class */ (function (_super) {
     return WriteStream;
 }(stream_1.Duplex));
 exports.WriteStream = WriteStream;
-function test() {
-    var readeStream = new ReadStream();
-    readeStream.on('data', function (data) {
-        console.info("data " + data);
-    });
-    readeStream.write("12:hello ");
-    readeStream.write("world!,12:hello world!,");
-    var writeStream = new WriteStream();
-    writeStream.pipe(process.stdout);
-    writeStream.write("hello");
-    writeStream.write("world43214");
-}
-//test();
-// ts-node src/rpc/netstring.ts
 //# sourceMappingURL=netstring.js.map

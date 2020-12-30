@@ -8,6 +8,7 @@ export interface ClientOption{
   port?:number;
   path?:string;
   timeout?:number;
+  reconnectDelay?:number;
 }
 
 export class RpcClient extends EventEmitter{
@@ -41,7 +42,7 @@ export class RpcClient extends EventEmitter{
       if(!this._closed){
         this._connect(this._onConnect.bind(this),this._onError.bind(this));
       }
-    },5000);
+    },this._option.reconnectDelay || 3000);
   }
 
   connect(){
@@ -83,7 +84,6 @@ export class RpcClient extends EventEmitter{
   }
 
   close(){
-    //发送数据给服务器进行关闭
     if(!this._closed){
       this._closed = true;
       this._rpc.close();
