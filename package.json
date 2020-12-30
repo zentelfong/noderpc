@@ -1,0 +1,17 @@
+{
+  "name": "noderpc",
+  "version": "1.0.1",
+  "private": true,
+  "author": "Zentel <fzt2009@163.com>",
+  "description": "used for rpc",
+  "scripts": {
+    "start": "node test/app.js"
+  },
+  "directories": {
+    "lib": "dist"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^14.14.16"
+  }
+}
