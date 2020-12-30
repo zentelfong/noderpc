@@ -1,9 +1,6 @@
 import {RpcClient} from "../src/RpcClient"
-import {rpcPath} from './common'
+import {rpcPath,sleepAsync} from './common'
 
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
 
 async function test() {
   const client = new RpcClient({
@@ -15,7 +12,7 @@ async function test() {
   for(let i=0;i<10000;++i){
     let rslt = await client.rpc("add",{x:i,y:i});
     //console.info(`${i} + ${i} = ${rslt}`);
-    //await sleep(1000);
+    //await sleepAsync(1000);
   }
 
   client.close();
@@ -23,7 +20,7 @@ async function test() {
   //10000耗时1.4秒，进程间通讯耗时1.1秒左右
   console.info(`cost ${Date.now() - start} ms`)
 
-  await sleep(1000);
+  await sleepAsync(1000);
   process.exit(0);
 }
 
@@ -46,11 +43,10 @@ async function test2() {
     console.error(err)
   }
 
-  //await sleep(1000);
+  //await sleepAsync(1000);
 
   process.exit(0);
 }
-
 
 test();
 
