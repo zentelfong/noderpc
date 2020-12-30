@@ -10,6 +10,7 @@
     "outDir": "dist",
     "target": "ES5",
     "esModuleInterop":true,
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": true,
   }
 }
