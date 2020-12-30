@@ -24,3 +24,5 @@ function serverExample(){
 
 serverExample();
 clientExample();
+
+// ts-node test/example.ts

@@ -4,6 +4,7 @@
   "private": true,
   "author": "Zentel <fzt2009@163.com>",
   "description": "used for rpc",
+  "main": "dist/index.js",
   "scripts": {
     "start": "node test/app.js"
   },
