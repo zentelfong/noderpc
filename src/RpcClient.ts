@@ -66,9 +66,9 @@ export class RpcClient extends EventEmitter{
 
     this._readStream = new ReadStream();
     this._socket.pipe(this._readStream);
-    this._readStream.on("data",(data)=>{
+    this._readStream.on("data",(data:Buffer)=>{
       try{
-        let msg = JSON.parse(data as string);
+        let msg = JSON.parse(data.toString('utf-8'));
         this._rpc.dispatch(msg);
       }catch(err){
         this._onError(err);

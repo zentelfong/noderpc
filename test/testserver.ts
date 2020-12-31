@@ -3,14 +3,18 @@ import {rpcPath} from './common'
 
 const server = new RpcServer();
 
-server.registerRpcHandler("add",async (param:{x,y},transfer:RpcConnection)=>{
-  //transfer.signal("signal11","test string");
+server.registerRpcHandler("add",async (param:{x,y})=>{
   return param.x + param.y
 })
 
 server.registerRpcHandler("minus",async (param:{x,y})=>{
   return param.x - param.y
 })
+
+server.registerRpcHandler("error",async (param:{x,y})=>{
+  throw Error("test error")
+})
+
 
 server.listen(rpcPath() + ".test");
 

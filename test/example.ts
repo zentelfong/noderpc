@@ -7,14 +7,13 @@ function clientExample(){
   });
   client.connect();
 
-  client.rpc("add",{x:1,y:1}).then(rslt=>{
+  client.rpc("error",{x:1,y:1}).then(rslt=>{
     console.info(rslt);
     client.close();
-  }).catch(err=>{
-    console.error(err);
+  }).catch((reason)=>{
+    console.error(`test error:${reason}`);
   })
   
-
   client.on("error",(err)=>{
     console.error(err);
   })
@@ -28,6 +27,14 @@ function serverExample(){
   const server = new RpcServer();
   server.registerRpcHandler("add",async (param:{x,y})=>{
     return param.x + param.y
+  })
+
+  server.registerRpcHandler("error",async (param:{x,y})=>{
+    throw new Error("test error")
+  })
+
+  server.on("error",(err)=>{
+    console.error(err);
   })
   server.listen(12340);
 }

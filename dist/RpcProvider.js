@@ -157,7 +157,7 @@ var RpcProvider = /** @class */ (function () {
             type: MessageType.internal,
             id: MSG_REJECT,
             transactionId: message.transactionId,
-            payload: reason
+            payload: typeof (reason) === "object" ? reason.stack : reason
         }, transfer); });
     };
     RpcProvider.prototype._handleInternal = function (message, transfer) {

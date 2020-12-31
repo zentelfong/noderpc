@@ -196,11 +196,11 @@ export class RpcProvider{
                     transactionId: message.transactionId,
                     payload: result
                 },transfer),
-                (reason: string) => this._dispatch({
+                (reason: Error) => this._dispatch({
                     type: MessageType.internal,
                     id: MSG_REJECT,
                     transactionId: message.transactionId,
-                    payload: reason
+                    payload: typeof(reason) === "object"?reason.stack:reason
                 },transfer)
             );
     }

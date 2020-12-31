@@ -67,7 +67,7 @@ var RpcClient = /** @class */ (function (_super) {
         this._socket.pipe(this._readStream);
         this._readStream.on("data", function (data) {
             try {
-                var msg = JSON.parse(data);
+                var msg = JSON.parse(data.toString('utf-8'));
                 _this._rpc.dispatch(msg);
             }
             catch (err) {
