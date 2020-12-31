@@ -85,6 +85,9 @@ var RpcServer = /** @class */ (function (_super) {
         _this._rpc.registerCloseHandler(function (conn) {
             conn.destroy();
         });
+        _this._rpc.registerErrorHandler(function (err) {
+            _this.emit('error', err);
+        });
         _this._connections = new Set();
         _this._server = new net_1.Server(_this._onConnect.bind(_this));
         _this._server.on('error', function (err) {

@@ -61,6 +61,10 @@ export class RpcServer extends EventEmitter{
     this._rpc.registerCloseHandler((conn:RpcConnection)=>{
       conn.destroy();
     });
+
+    this._rpc.registerErrorHandler((err)=>{
+      this.emit('error',err);
+    });
     this._connections = new Set<RpcConnection>();
     this._server = new Server(this._onConnect.bind(this));
 
