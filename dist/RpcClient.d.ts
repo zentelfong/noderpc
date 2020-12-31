@@ -18,8 +18,8 @@ export declare class RpcClient extends EventEmitter {
     constructor(option: ClientOption);
     private _onConnect;
     private _onError;
+    reconnect(): void;
     connect(): void;
-    private _connect;
     close(): void;
     rpc<T = void, U = void>(id: string, payload?: T): Promise<U>;
     registerSignalHandler<T = void>(id: string, handler: SignalHandler<T>): this;

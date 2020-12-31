@@ -6,9 +6,20 @@ function clientExample(){
     port:12340
   });
   client.connect();
+
   client.rpc("add",{x:1,y:1}).then(rslt=>{
     console.info(rslt);
     client.close();
+  }).catch(err=>{
+    console.error(err);
+  })
+  
+
+  client.on("error",(err)=>{
+    console.error(err);
+  })
+  client.on("close",()=>{
+    console.info("close");
   })
 }
 

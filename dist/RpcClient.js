@@ -39,26 +39,30 @@ var RpcClient = /** @class */ (function (_super) {
     };
     RpcClient.prototype._onError = function (err) {
         var _this = this;
-        this.emit("error", err);
         setTimeout(function () {
             if (!_this._closed) {
-                _this._connect(_this._onConnect.bind(_this), _this._onError.bind(_this));
+                _this.reconnect();
             }
         }, this._option.reconnectDelay || 3000);
+        this.emit("error", err);
+    };
+    RpcClient.prototype.reconnect = function () {
+        if (!this._closed) {
+            this._closed = true;
+            this._socket.destroy();
+        }
+        this.connect();
     };
     RpcClient.prototype.connect = function () {
-        this._connect(this._onConnect.bind(this), this._onError.bind(this));
-    };
-    RpcClient.prototype._connect = function (onConnect, onError) {
         var _this = this;
         if (!this._closed) {
             return;
         }
         var option = this._option;
         if (option.path)
-            this._socket = net_1.createConnection(option.path, onConnect);
+            this._socket = net_1.createConnection(option.path, this._onConnect.bind(this));
         else
-            this._socket = net_1.createConnection(option.port, option.host, onConnect);
+            this._socket = net_1.createConnection(option.port, option.host, this._onConnect.bind(this));
         this._readStream = new netstring_1.ReadStream();
         this._socket.pipe(this._readStream);
         this._readStream.on("data", function (data) {
@@ -67,14 +71,14 @@ var RpcClient = /** @class */ (function (_super) {
                 _this._rpc.dispatch(msg);
             }
             catch (err) {
-                onError(err);
+                _this._onError(err);
                 _this._socket.destroy();
             }
         });
-        this._readStream.on("error", onError);
+        this._readStream.on("error", this._onError.bind(this));
         this._writeStream = new netstring_1.WriteStream();
         this._writeStream.pipe(this._socket);
-        this._socket.on("error", onError);
+        this._socket.on("error", this._onError.bind(this));
         this._socket.on("close", function () {
             _this.emit("close");
         });

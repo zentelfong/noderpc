@@ -37,29 +37,32 @@ export class RpcClient extends EventEmitter{
   }
 
   private _onError(err:Error){
-    this.emit("error",err);
     setTimeout(() => {
       if(!this._closed){
-        this._connect(this._onConnect.bind(this),this._onError.bind(this));
+        this.reconnect();
       }
     },this._option.reconnectDelay || 3000);
+    this.emit("error",err);
+  }
+
+  reconnect(){
+    if(!this._closed){
+      this._closed = true;
+      this._socket.destroy();
+    }
+    this.connect();
   }
 
   connect(){
-    this._connect(this._onConnect.bind(this),this._onError.bind(this));
-  }
-
-
-  private _connect(onConnect?:()=>void,onError?:(err:Error)=>void){
     if(!this._closed){
       return;
     }
 
     let option = this._option;
     if(option.path)
-      this._socket = createConnection(option.path,onConnect);
+      this._socket = createConnection(option.path,this._onConnect.bind(this));
     else
-      this._socket = createConnection(option.port,option.host,onConnect);
+      this._socket = createConnection(option.port,option.host,this._onConnect.bind(this));
 
     this._readStream = new ReadStream();
     this._socket.pipe(this._readStream);
@@ -68,15 +71,15 @@ export class RpcClient extends EventEmitter{
         let msg = JSON.parse(data as string);
         this._rpc.dispatch(msg);
       }catch(err){
-        onError(err);
+        this._onError(err);
         this._socket.destroy();
       }
     });
 
-    this._readStream.on("error",onError);
+    this._readStream.on("error",this._onError.bind(this));
     this._writeStream = new WriteStream();
     this._writeStream.pipe(this._socket);
-    this._socket.on("error",onError);
+    this._socket.on("error",this._onError.bind(this));
     this._socket.on("close",()=>{
       this.emit("close");
     })
