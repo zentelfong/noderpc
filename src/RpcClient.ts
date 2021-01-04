@@ -8,7 +8,7 @@ export interface ClientOption{
   port?:number;
   path?:string;
   timeout?:number;
-  reconnectDelay?:number;
+  maxDelay?:number;
 }
 
 export class RpcClient extends EventEmitter{
@@ -18,12 +18,14 @@ export class RpcClient extends EventEmitter{
   private _readStream:ReadStream;
   private _writeStream:WriteStream;
   private _closed:boolean;
+  private _retry:number;
 
   constructor(option:ClientOption){
     super();
     this._option = option;
     this._closed = true;
-    this._rpc = new RpcProvider((message,transfer)=>{
+    this._retry = 0;
+    this._rpc = new RpcProvider((message)=>{
       this._writeStream.write(JSON.stringify(message),'utf-8');
     },option.timeout || 10000);
 
@@ -33,15 +35,22 @@ export class RpcClient extends EventEmitter{
   }
 
   private _onConnect(){
+    this._retry = 0;
     this.emit("connect");
   }
 
   private _onError(err:Error){
+    let delay = this._retry * 1000;
+    let maxDelay = this._option.maxDelay || 10000;
+    if(delay > maxDelay){
+      delay = maxDelay;
+    }
+    
     setTimeout(() => {
       if(!this._closed){
         this.reconnect();
       }
-    },this._option.reconnectDelay || 3000);
+    },delay);
     this.emit("error",err);
   }
 
@@ -50,6 +59,7 @@ export class RpcClient extends EventEmitter{
       this._closed = true;
       this._socket.destroy();
     }
+    this._retry += 1;
     this.connect();
   }
 
@@ -61,8 +71,10 @@ export class RpcClient extends EventEmitter{
     let option = this._option;
     if(option.path)
       this._socket = createConnection(option.path,this._onConnect.bind(this));
-    else
+    else if(option.port && option.host)
       this._socket = createConnection(option.port,option.host,this._onConnect.bind(this));
+    else
+      throw new Error("no path or port,host param");
 
     this._readStream = new ReadStream();
     this._socket.pipe(this._readStream);
@@ -82,7 +94,7 @@ export class RpcClient extends EventEmitter{
     this._socket.on("error",this._onError.bind(this));
     this._socket.on("close",()=>{
       this.emit("close");
-    })
+    });
     this._closed = false;
   }
 

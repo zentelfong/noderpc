@@ -58,7 +58,6 @@ var RpcProvider = /** @class */ (function () {
             }
         });
     };
-    ;
     RpcProvider.prototype.signal = function (id, payload, transfer) {
         this._dispatch({
             type: MessageType.signal,
@@ -80,7 +79,6 @@ var RpcProvider = /** @class */ (function () {
         this._rpcHandlers[id] = handler;
         return this;
     };
-    ;
     RpcProvider.prototype.registerSignalHandler = function (id, handler) {
         if (!this._signalHandlers[id]) {
             this._signalHandlers[id] = [];
@@ -94,7 +92,6 @@ var RpcProvider = /** @class */ (function () {
         }
         return this;
     };
-    ;
     RpcProvider.prototype.deregisterSignalHandler = function (id, handler) {
         if (this._signalHandlers[id]) {
             this._signalHandlers[id] = this._signalHandlers[id].filter(function (h) { return handler !== h; });

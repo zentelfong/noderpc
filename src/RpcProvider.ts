@@ -84,7 +84,7 @@ export class RpcProvider{
                 }
             }
         );
-    };
+    }
 
     signal<T = void>(id: string, payload?: T, transfer?: any): this {
         this._dispatch({
@@ -108,7 +108,7 @@ export class RpcProvider{
         }
         this._rpcHandlers[id] = handler;
         return this;
-    };
+    }
 
     registerSignalHandler<T = void>(id: string, handler: SignalHandler<T>): this {
         if (!this._signalHandlers[id]) {
@@ -123,7 +123,7 @@ export class RpcProvider{
             delete this._rpcHandlers[id];
         }
         return this;
-    };
+    }
 
     deregisterSignalHandler<T = void>(id: string, handler: SignalHandler<T>): this {
         if (this._signalHandlers[id]) {

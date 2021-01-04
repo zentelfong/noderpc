@@ -29,6 +29,11 @@ async function test2() {
     path:rpcPath()+".test"
   });
   
+
+  client.on("error",(err)=>{
+    console.error(err);
+  })
+
   let start = Date.now();
   client.connect();
 
@@ -39,6 +44,8 @@ async function test2() {
   try{
     let rslt = await client.rpc("add",{x:1,y:1});
     console.info(`add ${rslt}`);
+    rslt = await client.rpc("error");
+
   }catch(err){
     console.error(err)
   }
@@ -48,7 +55,7 @@ async function test2() {
   process.exit(0);
 }
 
-test();
+test2();
 
 // ts-node test/testclient.ts
 

@@ -11,7 +11,7 @@ server.registerRpcHandler("minus",async (param:{x,y})=>{
   return param.x - param.y
 })
 
-server.registerRpcHandler("error",async (param:{x,y})=>{
+server.registerRpcHandler("error",async (param)=>{
   throw Error("test error")
 })
 

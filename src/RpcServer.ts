@@ -76,9 +76,7 @@ export class RpcServer extends EventEmitter{
   listen(pathOrPort:number|string,host?:string){
     if(host){
       this._server.listen(pathOrPort as number,host);
-
-    }
-    else{
+    }else{
       if(typeof(pathOrPort) !== "number"){
         //如果使用path，则先要删除文件
         if(fs.existsSync(pathOrPort)){

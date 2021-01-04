@@ -26,7 +26,8 @@ var RpcClient = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this._option = option;
         _this._closed = true;
-        _this._rpc = new RpcProvider_1.RpcProvider(function (message, transfer) {
+        _this._retry = 0;
+        _this._rpc = new RpcProvider_1.RpcProvider(function (message) {
             _this._writeStream.write(JSON.stringify(message), 'utf-8');
         }, option.timeout || 10000);
         _this._rpc.registerErrorHandler(function (err) {
@@ -35,15 +36,21 @@ var RpcClient = /** @class */ (function (_super) {
         return _this;
     }
     RpcClient.prototype._onConnect = function () {
+        this._retry = 0;
         this.emit("connect");
     };
     RpcClient.prototype._onError = function (err) {
         var _this = this;
+        var delay = this._retry * 1000;
+        var maxDelay = this._option.maxDelay || 10000;
+        if (delay > maxDelay) {
+            delay = maxDelay;
+        }
         setTimeout(function () {
             if (!_this._closed) {
                 _this.reconnect();
             }
-        }, this._option.reconnectDelay || 3000);
+        }, delay);
         this.emit("error", err);
     };
     RpcClient.prototype.reconnect = function () {
@@ -51,6 +58,7 @@ var RpcClient = /** @class */ (function (_super) {
             this._closed = true;
             this._socket.destroy();
         }
+        this._retry += 1;
         this.connect();
     };
     RpcClient.prototype.connect = function () {
@@ -61,8 +69,10 @@ var RpcClient = /** @class */ (function (_super) {
         var option = this._option;
         if (option.path)
             this._socket = net_1.createConnection(option.path, this._onConnect.bind(this));
-        else
+        else if (option.port && option.host)
             this._socket = net_1.createConnection(option.port, option.host, this._onConnect.bind(this));
+        else
+            throw new Error("no path or port,host param");
         this._readStream = new netstring_1.ReadStream();
         this._socket.pipe(this._readStream);
         this._readStream.on("data", function (data) {

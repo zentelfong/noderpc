@@ -6,7 +6,7 @@ export interface ClientOption {
     port?: number;
     path?: string;
     timeout?: number;
-    reconnectDelay?: number;
+    maxDelay?: number;
 }
 export declare class RpcClient extends EventEmitter {
     private _option;
@@ -15,6 +15,7 @@ export declare class RpcClient extends EventEmitter {
     private _readStream;
     private _writeStream;
     private _closed;
+    private _retry;
     constructor(option: ClientOption);
     private _onConnect;
     private _onError;
