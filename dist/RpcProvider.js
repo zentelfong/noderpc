@@ -5,6 +5,8 @@ var MSG_RESOLVE = "resolve";
 var MSG_REJECT = "reject";
 var MSG_ERROR = "error";
 var MSG_CLOSE = "close";
+var MSG_PING = "ping";
+var MSG_PONG = "pong";
 var MessageType;
 (function (MessageType) {
     MessageType[MessageType["signal"] = 0] = "signal";
@@ -19,6 +21,7 @@ var RpcProvider = /** @class */ (function () {
         this._rpcTimeout = _rpcTimeout;
         this._errorHandler = null;
         this._closeHandler = null;
+        this._pingHandler = null;
         this._rpcHandlers = {};
         this._signalHandlers = {};
         this._pendingTransactions = {};
@@ -72,6 +75,12 @@ var RpcProvider = /** @class */ (function () {
             id: MSG_CLOSE,
         }, transfer ? transfer : undefined);
     };
+    RpcProvider.prototype.ping = function (transfer) {
+        this._dispatch({
+            type: MessageType.internal,
+            id: MSG_PING,
+        }, transfer ? transfer : undefined);
+    };
     RpcProvider.prototype.registerRpcHandler = function (id, handler) {
         if (this._rpcHandlers[id]) {
             throw new Error("rpc handler for " + id + " already registered");
@@ -112,6 +121,14 @@ var RpcProvider = /** @class */ (function () {
     };
     RpcProvider.prototype.deregisterCloseHandler = function () {
         this._closeHandler = null;
+        return this;
+    };
+    RpcProvider.prototype.registerPingHandler = function (handler) {
+        this._pingHandler = handler;
+        return this;
+    };
+    RpcProvider.prototype.deregisterPingHandler = function () {
+        this._pingHandler = null;
         return this;
     };
     RpcProvider.prototype._raiseError = function (error, transfer) {
@@ -186,6 +203,16 @@ var RpcProvider = /** @class */ (function () {
             case MSG_CLOSE:
                 if (this._closeHandler)
                     this._closeHandler(transfer);
+                break;
+            case MSG_PING:
+                this._dispatch({
+                    type: MessageType.internal,
+                    id: MSG_PONG
+                }, transfer);
+                break;
+            case MSG_PONG:
+                if (this._pingHandler)
+                    this._pingHandler(transfer);
                 break;
             default:
                 this._raiseError("unhandled internal message " + message.id, transfer);

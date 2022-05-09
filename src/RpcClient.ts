@@ -19,12 +19,15 @@ export class RpcClient extends EventEmitter{
   private _writeStream:WriteStream;
   private _closed:boolean;
   private _retry:number;
+  private _pingTimer:NodeJS.Timeout;
+  private _lastPing:number;
 
   constructor(option:ClientOption){
     super();
     this._option = option;
     this._closed = true;
     this._retry = 0;
+    this._lastPing = 0;
     this._rpc = new RpcProvider((message)=>{
       this._writeStream.write(JSON.stringify(message),'utf-8');
     },option.timeout || 10000);
@@ -32,11 +35,35 @@ export class RpcClient extends EventEmitter{
     this._rpc.registerErrorHandler((err)=>{
       this.emit("error",err);
     });
+
+    this._rpc.registerPingHandler(this._onPing.bind(this));
+  }
+
+  private _onPing(){
+    this._lastPing = Date.now();
+    //console.info("xxxx on ping");
   }
 
   private _onConnect(){
     this._retry = 0;
     this.emit("connect");
+
+    if(this._pingTimer){
+      clearInterval(this._pingTimer);
+      this._pingTimer = null;
+    }
+
+    this._pingTimer = setInterval(()=>{
+      if(this._closed){
+        return;
+      }
+      this._rpc.ping();
+      if(Date.now() - this._lastPing > 60000){
+        //连接超时
+        this.reconnect();
+      }
+    },30000);
+    this._lastPing = Date.now();
   }
 
   private _onError(err:Error){

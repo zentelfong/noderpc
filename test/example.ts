@@ -3,13 +3,14 @@ import {RpcClient,RpcServer} from '../src'
 
 function clientExample(){
   const client = new RpcClient({
+    host:"127.0.0.1",
     port:12340
   });
   client.connect();
 
-  client.rpc("error",{x:1,y:1}).then(rslt=>{
+  client.rpc("add",{x:1,y:1}).then(rslt=>{
     console.info(rslt);
-    client.close();
+    //client.close();
   }).catch((reason)=>{
     console.error(`test error:${reason}`);
   })
@@ -36,7 +37,7 @@ function serverExample(){
   server.on("error",(err)=>{
     console.error(err);
   })
-  server.listen(12340);
+  server.listen(12340,"127.0.0.1");
 }
 
 

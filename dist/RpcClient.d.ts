@@ -16,7 +16,10 @@ export declare class RpcClient extends EventEmitter {
     private _writeStream;
     private _closed;
     private _retry;
+    private _pingTimer;
+    private _lastPing;
     constructor(option: ClientOption);
+    private _onPing;
     private _onConnect;
     private _onError;
     reconnect(): void;

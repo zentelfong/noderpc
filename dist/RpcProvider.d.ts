@@ -26,6 +26,7 @@ export declare class RpcProvider {
     rpc<T = void, U = void>(id: string, payload?: T, transfer?: any): Promise<U>;
     signal<T = void>(id: string, payload?: T, transfer?: any): this;
     close(transfer?: any): void;
+    ping(transfer?: any): void;
     registerRpcHandler<T = void, U = void>(id: string, handler: RpcHandler<T, U>): this;
     registerSignalHandler<T = void>(id: string, handler: SignalHandler<T>): this;
     deregisterRpcHandler<T = void, U = void>(id: string, handler: RpcHandler<T, U>): this;
@@ -34,6 +35,8 @@ export declare class RpcProvider {
     deregisterErrorHandler(): this;
     registerCloseHandler(handler: (transfer: any) => void): this;
     deregisterCloseHandler(): this;
+    registerPingHandler(handler: (transfer: any) => void): this;
+    deregisterPingHandler(): this;
     private _raiseError;
     private _dispatchError;
     private _handleSignal;
@@ -43,6 +46,7 @@ export declare class RpcProvider {
     private _clearTransaction;
     private _errorHandler;
     private _closeHandler;
+    private _pingHandler;
     private _rpcHandlers;
     private _signalHandlers;
     private _pendingTransactions;

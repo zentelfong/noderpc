@@ -20,6 +20,7 @@ RpcClient示例
 import {RpcClient} from "noderpc"
 
 const client = new RpcClient({
+    host:"127.0.0.1",
 	port:12340
 });
 client.connect();

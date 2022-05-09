@@ -27,17 +27,39 @@ var RpcClient = /** @class */ (function (_super) {
         _this._option = option;
         _this._closed = true;
         _this._retry = 0;
+        _this._lastPing = 0;
         _this._rpc = new RpcProvider_1.RpcProvider(function (message) {
             _this._writeStream.write(JSON.stringify(message), 'utf-8');
         }, option.timeout || 10000);
         _this._rpc.registerErrorHandler(function (err) {
             _this.emit("error", err);
         });
+        _this._rpc.registerPingHandler(_this._onPing.bind(_this));
         return _this;
     }
+    RpcClient.prototype._onPing = function () {
+        this._lastPing = Date.now();
+        //console.info("xxxx on ping");
+    };
     RpcClient.prototype._onConnect = function () {
+        var _this = this;
         this._retry = 0;
         this.emit("connect");
+        if (this._pingTimer) {
+            clearInterval(this._pingTimer);
+            this._pingTimer = null;
+        }
+        this._pingTimer = setInterval(function () {
+            if (_this._closed) {
+                return;
+            }
+            _this._rpc.ping();
+            if (Date.now() - _this._lastPing > 60000) {
+                //连接超时
+                _this.reconnect();
+            }
+        }, 30000);
+        this._lastPing = Date.now();
     };
     RpcClient.prototype._onError = function (err) {
         var _this = this;

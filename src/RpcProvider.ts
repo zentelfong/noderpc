@@ -2,6 +2,8 @@ const MSG_RESOLVE = "resolve";
 const MSG_REJECT = "reject";
 const MSG_ERROR = "error";
 const MSG_CLOSE = "close";
+const MSG_PING = "ping";
+const MSG_PONG = "pong";
 
 interface Transaction {
     id: number;
@@ -102,6 +104,13 @@ export class RpcProvider{
         }, transfer ? transfer : undefined);
     }
 
+    ping(transfer?: any) {
+        this._dispatch({
+            type: MessageType.internal,
+            id: MSG_PING,
+        }, transfer ? transfer : undefined);
+    }
+
     registerRpcHandler<T = void, U = void>(id: string, handler: RpcHandler<T, U>): this {
         if (this._rpcHandlers[id]) {
             throw new Error(`rpc handler for ${id} already registered`);
@@ -149,6 +158,16 @@ export class RpcProvider{
 
     deregisterCloseHandler():this{
         this._closeHandler = null;
+        return this;
+    }
+
+    registerPingHandler(handler:(transfer:any)=>void):this{
+        this._pingHandler = handler;
+        return this;
+    }
+
+    deregisterPingHandler():this{
+        this._pingHandler = null;
         return this;
     }
 
@@ -239,6 +258,16 @@ export class RpcProvider{
                 if(this._closeHandler)
                     this._closeHandler(transfer);
                 break;
+            case MSG_PING:
+                this._dispatch({
+                    type: MessageType.internal,
+                    id: MSG_PONG
+                },transfer);
+                break;
+            case MSG_PONG:
+                if(this._pingHandler)
+                    this._pingHandler(transfer);
+                break;
             default:
                 this._raiseError(`unhandled internal message ${message.id}`,transfer);
                 break;
@@ -263,6 +292,7 @@ export class RpcProvider{
 
     private _errorHandler:(error:Error)=>void = null;
     private _closeHandler:(transfer:any)=>void = null;
+    private _pingHandler:(transfer:any)=>void = null;
     private _rpcHandlers: {[id: string]: RpcHandler<any, any>} = {};
     private _signalHandlers: {[id: string]: Array<SignalHandler<any>>} = {};
     private _pendingTransactions: {[id: number]: Transaction} = {};
